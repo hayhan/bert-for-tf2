@@ -27,9 +27,11 @@ class PositionEmbeddingLayer(bert.Layer):
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
         # input_shape: () of seq_len
+        # input_spec_shape = input_shape
+        input_spec_shape = None
         if input_shape is not None:
             assert input_shape.ndims == 0
-            self.input_spec = keras.layers.InputSpec(shape=input_shape, dtype='int32')
+            self.input_spec = keras.layers.InputSpec(shape=input_spec_shape, dtype='int32')
         else:
             self.input_spec = keras.layers.InputSpec(shape=(), dtype='int32')
 
@@ -69,9 +71,11 @@ class EmbeddingsProjector(bert.Layer):
         self.projector_bias_layer = None   # for ALBERT
 
     def build(self, input_shape):
-        emb_shape = input_shape
-        self.input_spec = keras.layers.InputSpec(shape=emb_shape)
-        assert emb_shape[-1] == self.params.embedding_size
+        # emb_shape = input_shape
+        # input_spec_shape = input_shape
+        input_spec_shape = None
+        self.input_spec = keras.layers.InputSpec(shape=input_spec_shape)
+        assert input_shape[-1] == self.params.embedding_size
 
         # ALBERT word embeddings projection
         self.projector_layer = self.add_weight(name="projector",
@@ -138,7 +142,8 @@ class BertEmbeddingsLayer(bert.Layer):
             self.input_spec = [keras.layers.InputSpec(shape=input_ids_shape),
                                keras.layers.InputSpec(shape=token_type_ids_shape)]
         else:
-            input_ids_shape = input_shape
+            # input_ids_shape = input_shape
+            input_ids_shape = None
             self.input_spec = keras.layers.InputSpec(shape=input_ids_shape)
 
         # use either hidden_size for BERT or embedding_size for ALBERT
@@ -180,7 +185,7 @@ class BertEmbeddingsLayer(bert.Layer):
                 hidden_size=position_embedding_size
             )
 
-        self.layer_norm_layer = pf.LayerNormalization(name="LayerNorm")
+        self.layer_norm_layer = pf.LayerNormalization2(name="LayerNorm")
         self.dropout_layer    = keras.layers.Dropout(rate=self.params.hidden_dropout)
 
         super(BertEmbeddingsLayer, self).build(input_shape)

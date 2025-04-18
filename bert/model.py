@@ -49,8 +49,10 @@ class BertModelLayer(Layer):
             self.input_spec = [keras.layers.InputSpec(shape=input_ids_shape),
                                keras.layers.InputSpec(shape=token_type_ids_shape)]
         else:
-            input_ids_shape = input_shape
+            # input_ids_shape = input_shape
+            input_ids_shape = None
             self.input_spec = keras.layers.InputSpec(shape=input_ids_shape)
+            # print(f"---dbg: {input_shape}")
         super(BertModelLayer, self).build(input_shape)
 
     def compute_output_shape(self, input_shape):
@@ -73,10 +75,15 @@ class BertModelLayer(Layer):
             pf.utils.freeze_leaf_layers(self, freeze_selector)
 
     def call(self, inputs, mask=None, training=None):
+        # print(f"in BERT module, 000")
         if mask is None:
             mask = self.embeddings_layer.compute_mask(inputs)
 
         embedding_output = self.embeddings_layer(inputs, mask=mask, training=training)
+        # print(f"in BERT module, 111 {embedding_output.shape}")
+        # exit(1)
         output           = self.encoders_layer(embedding_output, mask=mask, training=training)
+        # print(f"in BERT module, 222 {output.shape}")
+        # exit(1)
         return output   # [B, seq_len, hidden_size]
 

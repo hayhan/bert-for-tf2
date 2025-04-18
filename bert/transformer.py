@@ -6,9 +6,9 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow import keras
 
-from params_flow import LayerNormalization
+from params_flow import LayerNormalization2
 
 from bert.attention import AttentionLayer
 from bert.layer import Layer
@@ -37,7 +37,8 @@ class ProjectionLayer(Layer):
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
         assert isinstance(input_shape, list) and 2 == len(input_shape)
-        out_shape, residual_shape = input_shape
+        # out_shape, residual_shape = input_shape
+        out_shape, residual_shape = None, None
         self.input_spec = [keras.layers.InputSpec(shape=out_shape),
                            keras.layers.InputSpec(shape=residual_shape)]
 
@@ -45,7 +46,7 @@ class ProjectionLayer(Layer):
                                         kernel_initializer=self.create_initializer(),
                                         name="dense")
         self.dropout    = keras.layers.Dropout(rate=self.params.hidden_dropout)
-        self.layer_norm = LayerNormalization(name="LayerNorm")
+        self.layer_norm = LayerNormalization2(name="LayerNorm")
 
         if self.params.adapter_size is not None:
             self.adapter_down = keras.layers.Dense(units=self.params.adapter_size,
@@ -98,7 +99,9 @@ class TransformerSelfAttentionLayer(Layer):
         self.supports_masking = True
 
     def build(self, input_shape):
-        self.input_spec = keras.layers.InputSpec(shape=input_shape)
+        # input_spec_shape = input_shape
+        input_spec_shape = None
+        self.input_spec = keras.layers.InputSpec(shape=input_spec_shape)
 
         self.attention_layer = AttentionLayer.from_params(
             self.params,
@@ -151,7 +154,9 @@ class SingleTransformerEncoderLayer(Layer):
         self.supports_masking = True
 
     def build(self, input_shape):
-        self.input_spec = keras.layers.InputSpec(shape=input_shape)  # [B, seq_len, hidden_size]
+        # input_spec_shape = input_shape
+        input_spec_shape = None
+        self.input_spec = keras.layers.InputSpec(shape=input_spec_shape)  # [B, seq_len, hidden_size]
 
         self.self_attention_layer = TransformerSelfAttentionLayer.from_params(
             self.params,
@@ -206,7 +211,9 @@ class TransformerEncoderLayer(Layer):
         self.supports_masking = True
 
     def build(self, input_shape):
-        self.input_spec = keras.layers.InputSpec(shape=input_shape)
+        # input_spec_shape = input_shape
+        input_spec_shape = None
+        self.input_spec = keras.layers.InputSpec(shape=input_spec_shape)
 
         # create all transformer encoder sub-layers
         if self.params.shared_layer:
